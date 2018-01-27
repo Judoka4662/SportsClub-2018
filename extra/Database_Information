@@ -1,0 +1,10 @@
+username: sportsclub2018
+pass: tamuhack2018
+
+DB Identifier: sportsclub2018
+
+database name: fields
+
+port: 5432
+
+endpoint: sportsclub2018.cbb3xkufzgzy.us-west-2.rds.amazonaws.com
