@@ -11,6 +11,11 @@ c = conn.cursor()
 app = Bottle()
 
 
+@app.route('/getaddress')
+def get_address():
+	return template("{{zip_code}}", zip_code=000000)
+
+
 @app.route('/updatebaseball')
 def update_baseball():
 	"""
