@@ -56,3 +56,12 @@ min_depth int
 max_depth int
 diving_board boolean
 current_temp int
+
+tennis_court:
+(6 varibales)
+condition int
+weather int
+cost int
+shelter boolean
+net_cond int
+name text

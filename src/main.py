@@ -1,5 +1,8 @@
-from bottle import Bottle, route, run, template, request, post, get
+from bottle import route, run, template, request
 import psycopg2
+import json
+
+# Name of BBall Court: Basketball Court
 
 
 conn = psycopg2.connect(
@@ -8,15 +11,13 @@ conn = psycopg2.connect(
 
 c = conn.cursor()
 
-app = Bottle()
 
-
-@app.route('/getaddress')
+@route('/getaddress')
 def get_address():
 	return template("{{zip_code}}", zip_code=000000)
 
 
-@app.route('/updatebaseball')
+@route('/updatebaseball')
 def update_baseball():
 	"""
 	We need a number of variables. This is the function that will continue
@@ -46,132 +47,120 @@ def update_baseball():
 		)
 
 
-@app.route('/updatebasketball')
-def update_baseketball():
+@route('/updatebasketball')
+def update_basketball():
 	"""
 	We need a number of variables. This is the function that will continue
 	the update of the status of a current field
-	"""
-	condition = request.forms.get("condition")
-	weather = request.forms.get("weather")
-	cost = request.forms.get("cost")
-	shelter = request.forms.get("shelter")
-	turf = request.forms.get("turf")
-	name = request.forms.get('name')
 
-	update = (condition, weather, cost, shelter, turf, name)
+	"""
+	condition = 4
+	weather = 4
+	cost = 2
+	shelter = True
+	floor_type = "Wood"
+	name = "Basketball Court"
+	full_court = True
+	rim_cond = 3
+
+	# condition = request.forms.get("condition")
+	# weather = request.forms.get("weather")
+	# cost = request.forms.get("cost")
+	# shelter = request.forms.get("shelter")
+	# floor_type = request.forms.get("floor_type")
+	# name = request.forms.get("name")
+	# full_court = request.forms.get("full_court")
+	# rim_cond = request.forms.get("rim_cond")
+
+	update = (
+		condition, weather, cost, shelter, floor_type,
+		full_court, rim_cond, name)
 
 	with conn:
 		c.execute(
 			"""
-			UPDATE baseball_field
+			UPDATE basketball_court
 			SET 
 			condition = %s,
 			weather = %s,
 			cost = %s,
 			shelter = %s,
-			turf = %s
+			floor_type = %s,
+			full_court = %s,
+			rim_cond = %s
+			WHERE name = %s
 			""", update
 		)
 
 
-@app.route('/updatesoccer')
-def update_soccer():
-	"""
-	We need a number of variables. This is the function that will continue
-	the update of the status of a current field
-	"""
-	condition = request.forms.get("condition")
-	weather = request.forms.get("weather")
-	cost = request.forms.get("cost")
-	shelter = request.forms.get("shelter")
-	turf = request.forms.get("turf")
-	name = request.forms.get('name')
-
-	update = (condition, weather, cost, shelter, turf, name)
-
-	with conn:
-		c.execute(
-			"""
-			UPDATE baseball_field
-			SET 
-			condition = %s,
-			weather = %s,
-			cost = %s,
-			shelter = %s,
-			turf = %s
-			""", update
-		)
-
-
-@app.route('/updateswimmingpool')
-def update_swimmingpool():
-	"""
-	We need a number of variables. This is the function that will continue
-	the update of the status of a current field
-	"""
-	condition = request.forms.get("condition")
-	weather = request.forms.get("weather")
-	cost = request.forms.get("cost")
-	shelter = request.forms.get("shelter")
-	turf = request.forms.get("turf")
-	name = request.forms.get('name')
-
-	update = (condition, weather, cost, shelter, turf, name)
-
-	with conn:
-		c.execute(
-			"""
-			UPDATE baseball_field
-			SET 
-			condition = %s,
-			weather = %s,
-			cost = %s,
-			shelter = %s,
-			turf = %s
-			""", update
-		)
+# @route('/createbasketball')
+# def create_baseketball():
+# 	"""
+# 	We need a number of variables. This is the function that will continue
+# 	the update of the status of a current field
+# 	"""
+# 	condition = 5
+# 	weather = 3
+# 	cost = 1
+# 	shelter = True
+# 	floor_type = "Wood"
+# 	name = "Basketball Court"
+# 	full_court = True
+# 	rim_cond = 4
+#
+# 	update = (
+# 		condition, weather, cost, shelter, floor_type,
+# 		full_court, rim_cond, name)
+#
+# 	with conn:
+# 		c.execute(
+# 			"""
+# 			INSERT INTO basketball_court
+# 			VALUES
+# 			condition = %s,
+# 			weather = %s,
+# 			cost = %s,
+# 			shelter = %s,
+# 			floor_type = %s,
+# 			full_court = %s,
+# 			rim_cond = %s,
+# 			name = %s
+# 			""", update
+# 		)
 
 
-@app.route('/updatetennis')
-def update_tennis():
-	"""
-	We need a number of variables. This is the function that will continue
-	the update of the status of a current field
-	"""
-	condition = request.forms.get("condition")
-	weather = request.forms.get("weather")
-	cost = request.forms.get("cost")
-	shelter = request.forms.get("shelter")
-	turf = request.forms.get("turf")
-	name = request.forms.get('name')
-
-	update = (condition, weather, cost, shelter, turf)
-
-	with conn:
-		c.execute(
-			"""
-			UPDATE baseball_field
-			SET 
-			condition = %s,
-			weather = %s,
-			cost = %s,
-			shelter = %s,
-			turf = %s
-			""", update
-		)
-
-
-@app.route('/getupdate')
+@route('/getupdate')
 def getupdate():
 	"""
 	This is what will run when we we reload the page that the use will see to
 	check up on the status of a field
 	"""
-	pass
+
+	requestinfo = {}
+
+	with conn:
+		c.execute(
+			"""
+			SELECT * FROM basketball_court
+			WHERE name = 'Basketball Court'
+			"""
+		)
+		values = c.fetchone()
+
+		columns = [
+			"condition", "weather", "cost", "shelter", "floor_type",
+			"full_court", "rim_cond", "name"]
+
+		for col, val in zip(columns, values):
+			requestinfo[col] = val
+
+		json_request = json.dumps(requestinfo)
+		print(json_request)
+
+		return json_request
 
 
-@app.route('/followup')
+@route('/followup')
 def followup():
 	"""
 	This is the form that is filled out when we follow up with them
@@ -214,19 +203,19 @@ def followup():
 		)
 
 
-@app.route('/signup')  # post to /login
+@route('/signup')  # post to /login
 def signup():
 	"""
 	Gets the users information and saves it to the
 	database: SportsClub
 	table: user_information
 	"""
-	ident = request.forms.get('identification')
-	username = request.forms.get('username')
-	first_name = request.forms.get('first_name')
-	last_name = request.forms.get('last_name')
-	password = request.forms.get('password')
-	email = request.forms.get('email')
+	# ident = request.forms.get('identification')
+	# username = request.forms.get('username')
+	# first_name = request.forms.get('first_name')
+	# last_name = request.forms.get('last_name')
+	# password = request.forms.get('password')
+	# email = request.forms.get('email')
 
 	# MOCK
 	ident = 123456789
@@ -256,13 +245,13 @@ def signup():
 		# )
 
 
-@app.route('/login')
+@route('/login')
 def login():
 	"""
 	This function will run on the login page
 	"""
-	username = request.forms.get('username')
-	password = request.forms.get('password')
+	# username = request.forms.get('username')
+	# password = request.forms.get('password')
 
 	# MOCK
 	username = "Username"
@@ -287,12 +276,122 @@ def login():
 		first_name=first_name, last_name=last_name)
 
 
-@app.route("/delete")
+@route("/delete")
 def delete_entries():
 	print("Deleting user_information table...")
 	c.execute(
-		"DELETE FROM user_information"
+		"DELETE FROM basketball_court"
 	)
+
+
+# @route('/createtennis')
+# def create_tennis():
+# 	"""
+# 	We need a number of variables. This is the function that will continue
+# 	the update of the status of a current field
+# 	"""
+# 	# condition = request.forms.get("condition")
+# 	# weather = request.forms.get("weather")
+# 	# cost = request.forms.get("cost")
+# 	# shelter = request.forms.get("shelter")
+# 	# turf = request.forms.get("turf")
+# 	# name = request.forms.get('name')
+#
+# 	condition = 3
+# 	weather = 4
+# 	cost = 3
+# 	shelter = False
+# 	net_cond = 3
+# 	name = "Tennis Court"
+#
+# 	update = (condition, weather, cost, shelter, net_cond, name)
+#
+# 	with conn:
+# 		c.execute(
+# 			"""
+# 			INSERT INTO tennis_fields
+# 			VALUES
+# 			condition = %s,
+# 			weather = %s,
+# 			cost = %s,
+# 			shelter = %s,
+# 			ned_cont = %s
+# 			WHERE name = %s
+# 			""", update
+# 		)
+
+
+# @route('/createsoccer')
+# def create_soccer():
+# 	"""
+# 	We need a number of variables. This is the function that will continue
+# 	the update of the status of a current field
+# 	"""
+# 	condition = request.forms.get("condition")
+# 	weather = request.forms.get("weather")
+# 	cost = request.forms.get("cost")
+# 	shelter = request.forms.get("shelter")
+# 	turf = request.forms.get("turf")
+# 	name = request.forms.get('name')
+#
+# 	update = (condition, weather, cost, shelter, turf, name)
+#
+# 	with conn:
+# 		c.execute(
+# 			"""
+# 			UPDATE baseball_field
+# 			SET
+# 			condition = %s,
+# 			weather = %s,
+# 			cost = %s,
+# 			shelter = %s,
+# 			turf = %s
+# 			""", update
+# 		)
+#
+#
+# @route('/createswimmingpool')
+# def create_swimmingpool():
+# 	"""
+# 	We need a number of variables. This is the function that will continue
+# 	the update of the status of a current field
+# 	"""
+# 	# condition = request.forms.get("condition")
+# 	# weather = request.forms.get("weather")
+# 	# cost = request.forms.get("cost")
+# 	# shelter = request.forms.get("shelter")
+# 	# turf = request.forms.get("turf")
+# 	# name = request.forms.get('name')
+#
+# 	condition = 2
+# 	name = "Swimming Pool"
+# 	weather = 4
+# 	cost = 2
+# 	shelter = False
+# 	min_depth = 3
+# 	max_depth = 11
+# 	diving_board = True
+# 	current_temp = 4
+#
+# 	update = (
+# 		condition, weather, cost, shelter, min_depth, max_depth,
+# 		diving_board, current_temp, name)
+#
+# 	with conn:
+# 		c.execute(
+# 			"""
+# 			UPDATE baseball_field
+# 			VALUES
+# 			condition = %s,
+# 			weather = %s,
+# 			cost = %s,
+# 			shelter = %s,
+# 			min_depth = %s,
+# 			max_depth = %s,
+# 			diving_board = %s
+# 			WHERE name = %s
+# 			""", update
+# 		)
 
 
 run(host="localhost", port=4567)
