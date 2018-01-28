@@ -1,1 +1,1 @@
-web: gunicorn login:app --log-file--
+worker: py SportsClub/src/main.py
