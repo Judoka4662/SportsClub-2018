@@ -18,13 +18,42 @@ def followup():
 	2. Would you come back? (??? Where do we put this information?
 	What do we do with it? Do we display it?)
 	3. Rating (INT)
+
+	Need:
+	Name of the Field
+
+	We want to display to users looking up how others have answered these
+	follow up questions
 	"""
 
-	pass
+	name_of_field = request.forms.get("name_of_field")
+	type_of_field = request.forms.get("type_of_field")
+	condition = request.forms.get("condition")
+	rating = request.forms.get("rating")
+
+	with conn:
+		# This is so that we can get the average ratings
+		# of every place that we have and display to the user what
+		# other people think of the place
+		c.execute(
+			"""
+			INSERT INTO ratings (name_of_field, rating)
+			VALUES (%s, %s)
+			""", (name_of_field, rating)
+		)
+
+		# This will save the condition of the field (as an integer). We want
+		# to display the average ratings to users who see the page
+		c.execute(
+			"""
+			INSERT INTO %s (condition)
+			VALUES (%s)
+			""", (type_of_field, condition)
+		)
 
 
-@route('/login')  # post to /login
-def login():
+@route('/signup')  # post to /login
+def signup():
 	"""
 	Gets the users information and saves it to the
 	database: SportsClub
@@ -39,7 +68,7 @@ def login():
 
 	# MOCK
 	ident = 123456789
-	username = "Username123456789"
+	username = "Username"
 	first_name = "First Name"
 	last_name = "Last Name"
 	password = "Password"
@@ -55,31 +84,49 @@ def login():
 			%s, %s, %s, %s, %s, %s
 			)""", new_user)
 
-		c.execute(
-			"SELECT * FROM user_information"
-		)
-		print(c.fetchall())
+		# c.execute(
+		# 	"SELECT * FROM user_information"
+		# )
+		# print(c.fetchall())
 
-		c.execute(
-			"DELETE FROM user_information"
-		)
-
-
-def delete_entries():
-		c.execute(
-			"DELETE FROM user_information"
-		)
+		# c.execute(
+		# 	"DELETE FROM user_information"
+		# )
 
 
-# @route('/')
-def get_login():
-	print("Get_login")
+@route('/login')
+def login():
+	"""
+	This function will run on the login page
+	"""
+	username = request.forms.get('username')
+	password = request.forms.get('password')
+
+	# MOCK
+	username = "Username"
+	password = "Password"
+
+	feed = (username, password)
+
 	with conn:
 		c.execute(
-			"SELECT * FROM user_information"
+			"""
+			SELECT first_name, last_name FROM user_information 
+			WHERE
+			username = %s AND
+			password = %s
+			""", feed
 		)
 
 		print(c.fetchall())
+
+
+@route("/delete")
+def delete_entries():
+	print("Deleting user_information table...")
+	c.execute(
+		"DELETE FROM user_information"
+	)
 
 
 run(host="localhost", port=4567)
