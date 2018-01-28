@@ -1,4 +1,4 @@
-from bottle import route, run, template, request, post, get
+from bottle import Bottle, route, run, template, request, post, get
 import psycopg2
 
 
@@ -8,8 +8,165 @@ conn = psycopg2.connect(
 
 c = conn.cursor()
 
+app = Bottle()
 
-@route('/followup')
+
+@app.route('/updatebaseball')
+def update_baseball():
+	"""
+	We need a number of variables. This is the function that will continue
+	the update of the status of a current field
+	"""
+	condition = request.forms.get("condition")
+	weather = request.forms.get("weather")
+	cost = request.forms.get("cost")
+	shelter = request.forms.get("shelter")
+	turf = request.forms.get("turf")
+	name = request.forms.get('name')
+
+	update = (condition, weather, cost, shelter, turf, name)
+
+	with conn:
+		c.execute(
+			"""
+			UPDATE baseball_field
+			SET 
+			condition = %s,
+			weather = %s,
+			cost = %s,
+			shelter = %s,
+			turf = %s
+			WHERE name = %s
+			""", update
+		)
+
+
+@app.route('/updatebasketball')
+def update_baseketball():
+	"""
+	We need a number of variables. This is the function that will continue
+	the update of the status of a current field
+	"""
+	condition = request.forms.get("condition")
+	weather = request.forms.get("weather")
+	cost = request.forms.get("cost")
+	shelter = request.forms.get("shelter")
+	turf = request.forms.get("turf")
+	name = request.forms.get('name')
+
+	update = (condition, weather, cost, shelter, turf, name)
+
+	with conn:
+		c.execute(
+			"""
+			UPDATE baseball_field
+			SET 
+			condition = %s,
+			weather = %s,
+			cost = %s,
+			shelter = %s,
+			turf = %s
+			""", update
+		)
+
+
+@app.route('/updatesoccer')
+def update_soccer():
+	"""
+	We need a number of variables. This is the function that will continue
+	the update of the status of a current field
+	"""
+	condition = request.forms.get("condition")
+	weather = request.forms.get("weather")
+	cost = request.forms.get("cost")
+	shelter = request.forms.get("shelter")
+	turf = request.forms.get("turf")
+	name = request.forms.get('name')
+
+	update = (condition, weather, cost, shelter, turf, name)
+
+	with conn:
+		c.execute(
+			"""
+			UPDATE baseball_field
+			SET 
+			condition = %s,
+			weather = %s,
+			cost = %s,
+			shelter = %s,
+			turf = %s
+			""", update
+		)
+
+
+@app.route('/updateswimmingpool')
+def update_swimmingpool():
+	"""
+	We need a number of variables. This is the function that will continue
+	the update of the status of a current field
+	"""
+	condition = request.forms.get("condition")
+	weather = request.forms.get("weather")
+	cost = request.forms.get("cost")
+	shelter = request.forms.get("shelter")
+	turf = request.forms.get("turf")
+	name = request.forms.get('name')
+
+	update = (condition, weather, cost, shelter, turf, name)
+
+	with conn:
+		c.execute(
+			"""
+			UPDATE baseball_field
+			SET 
+			condition = %s,
+			weather = %s,
+			cost = %s,
+			shelter = %s,
+			turf = %s
+			""", update
+		)
+
+
+@app.route('/updatetennis')
+def update_tennis():
+	"""
+	We need a number of variables. This is the function that will continue
+	the update of the status of a current field
+	"""
+	condition = request.forms.get("condition")
+	weather = request.forms.get("weather")
+	cost = request.forms.get("cost")
+	shelter = request.forms.get("shelter")
+	turf = request.forms.get("turf")
+	name = request.forms.get('name')
+
+	update = (condition, weather, cost, shelter, turf)
+
+	with conn:
+		c.execute(
+			"""
+			UPDATE baseball_field
+			SET 
+			condition = %s,
+			weather = %s,
+			cost = %s,
+			shelter = %s,
+			turf = %s
+			""", update
+		)
+
+
+@app.route('/getupdate')
+def getupdate():
+	"""
+	This is what will run when we we reload the page that the use will see to
+	check up on the status of a field
+	"""
+	pass
+
+
+@app.route('/followup')
 def followup():
 	"""
 	This is the form that is filled out when we follow up with them
@@ -52,7 +209,7 @@ def followup():
 		)
 
 
-@route('/signup')  # post to /login
+@app.route('/signup')  # post to /login
 def signup():
 	"""
 	Gets the users information and saves it to the
@@ -94,7 +251,7 @@ def signup():
 		# )
 
 
-@route('/login')
+@app.route('/login')
 def login():
 	"""
 	This function will run on the login page
@@ -118,10 +275,14 @@ def login():
 			""", feed
 		)
 
-		print(c.fetchall())
+		first_name, last_name = c.fetchone()
+
+	return template(
+		'{{first_name}},{{last_name}}',
+		first_name=first_name, last_name=last_name)
 
 
-@route("/delete")
+@app.route("/delete")
 def delete_entries():
 	print("Deleting user_information table...")
 	c.execute(
